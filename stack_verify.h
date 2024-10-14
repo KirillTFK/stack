@@ -38,7 +38,9 @@ enum ERRORS
     MORE_THAN_MAX_DATA_SIZE = SLIDER << 5,
     SUSPICIOUS_SIZE = SLIDER << 6,
     ATTEMPT_TO_TAKE_ELEM_FROM_EMPTY_STACK = SLIDER << 7,
-    POISON_EMPTY_STACK = SLIDER << 8
+    POISON_EMPTY_STACK = SLIDER << 8,
+    WRONG_STACK_HASH = SLIDER << 9,
+    WRONG_DATA_HASH = SLIDER << 10
 };
 
 enum PRESENCE_OF_ERROR
@@ -53,3 +55,5 @@ void check_canaries(struct Stack_t* const stk);
 bool verify_stack (struct Stack_t * const stk,const char* const file, const char* const func, const int line);
 bool stack_error (const int error, FILE* f_ptr, const char *file, const char *func, const int line);
 void print_ZOV (FILE* f_ptr, int times);
+void check_hash (Stack_t* stk);
+void calculate_all_hash (Stack_t* stk);

@@ -9,6 +9,7 @@
 #include "stack_verify.h"
 #include "stack_push_and_pop.h"
 #include "constructor.h"
+#include "hash.h"
 
 struct Stack_t* get_stack_pointer (void)
 {
@@ -40,7 +41,7 @@ void stack_ctor (struct Stack_t* stk, unsigned long long capacity, FILE* f_ptr, 
     else
         stk->capacity = capacity;
 
-    stk->data = (stack_elem_t*)calloc (stk->capacity + 2, sizeof(stack_elem_t)) + 1;
+    stk->data = (stack_elem_t*)calloc (stk->capacity + 3, sizeof(stack_elem_t)) + 2;
 
     SUM_ERRORS (stk->data == NULL, FAILED_TO_ALLOCATE_DYNAM_MEMORY);
 
@@ -48,7 +49,9 @@ void stack_ctor (struct Stack_t* stk, unsigned long long capacity, FILE* f_ptr, 
     {
         *(stk->data - 1) = CANARY_VALUE;
         stk->data[stk->capacity] = CANARY_VALUE;
+        calculate_all_hash (stk);
     }
+
 
     poison (stk);
 }
@@ -56,11 +59,12 @@ void stack_ctor (struct Stack_t* stk, unsigned long long capacity, FILE* f_ptr, 
 void poison (Stack_t* stk)
 {
     MYASSERT (stk, stk);
+    check_hash (stk);
 
     SUM_ERRORS (stk->capacity < stk->size, SUSPICIOUS_SIZE);
     SUM_ERRORS (!(stk->data), FAILED_TO_ALLOCATE_DYNAM_MEMORY);
-    SUM_ERRORS (stk->size == 0, POISON_EMPTY_STACK);
 
+    calculate_all_hash (stk);
     if (VERIFY_STACK(stk) == WITHOUT_ERROR)
     {
         for (unsigned i = stk->size; i < stk->capacity; i++)
@@ -68,6 +72,7 @@ void poison (Stack_t* stk)
             (stk->data)[i] = POISON_VALUE;
         }
     }
+    calculate_all_hash (stk);
 }
 
 

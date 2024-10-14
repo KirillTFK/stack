@@ -24,7 +24,7 @@ void stack_dtor (struct Stack_t* const stk)
         return;
 
      if (!stk->data)
-        free (stk->data -1);
+        free (stk->data -2);
 
     //fclose (stk->f_ptr);
 }

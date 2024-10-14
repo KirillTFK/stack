@@ -1,6 +1,6 @@
 #pragma once
 #include <stdio.h>
-
+#include "hash.h"
 //------------------------------------------typedef-----------------------------------------------------------------------------
 typedef double stack_elem_t;
 
@@ -17,6 +17,7 @@ struct Stack_t
     unsigned size;
     int stack_error;
     FILE* f_ptr;
+    hash_t stk_hash;
     stack_elem_t right_canary;
 };
 

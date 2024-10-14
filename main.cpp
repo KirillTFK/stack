@@ -28,6 +28,8 @@ int main ()
 
     }
 
+    stk->data[1] = 7;
+
     for (int i = 0; i < 1; i++)
     {
         stack_pop (stk);

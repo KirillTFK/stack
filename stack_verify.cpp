@@ -6,6 +6,7 @@
 #include "stack_verify.h"
 #include "colors.h"
 #include "stack.h"
+#include "hash.h"
 
 
 
@@ -76,6 +77,18 @@ bool stack_error (const int error, FILE* f_ptr, const char *file, const char *fu
         error_flag = WITH_ERROR;
     }
 
+    if (error & WRONG_STACK_HASH)
+    {
+        fprintf (f_ptr, "%sНесанкцианированное изменение хэша структуры стек%s\n", MAGENTA, RESET);
+        error_flag = WITH_ERROR;
+    }
+
+    if (error & WRONG_DATA_HASH)
+    {
+        fprintf (f_ptr, "%sНесанкцианированное изменение хэша массива элементов%s\n", MAGENTA, RESET);
+        error_flag = WITH_ERROR;
+    }
+
     return error_flag;
 }
 
@@ -85,6 +98,7 @@ bool verify_stack (struct Stack_t * const stk,const char* const file,const char*
     MYASSERT (stk , stk);
 
     check_canaries (stk);
+    check_hash (stk);
 
     if ((error_flag = STACK_ERROR (stk->stack_error, stk->f_ptr)) == WITH_ERROR)
         stack_dump(stk);
@@ -98,17 +112,14 @@ void check_canaries(struct Stack_t* const stk)
     MYASSERT (stk,stk);
     MYASSERT (stk->data,stk);
 
-    if(fabs(stk->right_canary - CANARY_VALUE) > DEVIATION)
-        stk->stack_error = stk->stack_error | RIGHT_STACK_CANARY_DIED;
 
-    if(fabs(stk->left_canary - CANARY_VALUE) > DEVIATION)
-        stk->stack_error = stk->stack_error | LEFT_STACK_CANARY_DIED;
+    SUM_ERRORS (fabs(stk->right_canary - CANARY_VALUE) > DEVIATION, RIGHT_STACK_CANARY_DIED);
 
-    if(fabs(*(stk->data -1) - CANARY_VALUE )> DEVIATION)
-        stk->stack_error = stk->stack_error | LEFT_DATA_CANARY_DIED;
+    SUM_ERRORS (fabs(stk->left_canary - CANARY_VALUE) > DEVIATION, LEFT_STACK_CANARY_DIED);
 
-    if(fabs((stk->data[stk->capacity]) - CANARY_VALUE)> DEVIATION)
-        stk->stack_error = stk->stack_error | RIGHT_DATA_CANARY_DIED;
+    SUM_ERRORS (fabs(*(stk->data -1) - CANARY_VALUE )> DEVIATION, LEFT_DATA_CANARY_DIED);
+
+    SUM_ERRORS (fabs((stk->data[stk->capacity]) - CANARY_VALUE)> DEVIATION, RIGHT_DATA_CANARY_DIED);
 }
 
 void stack_dump (struct Stack_t *stk)
@@ -130,7 +141,7 @@ void stack_dump (struct Stack_t *stk)
                                                                                  BLUE, stk->capacity, RESET, STANDARD, RESET,
                                                                                  MAGENTA, stk->size, RESET, STANDARD, RESET );
 
-    if (stk->stack_error !=  SUSPICIOUS_SIZE && stk->stack_error != MORE_THAN_MAX_DATA_SIZE)
+    if (stk->stack_error !=  SUSPICIOUS_SIZE && stk->stack_error != MORE_THAN_MAX_DATA_SIZE && stk->size != 0)
     {
         int count = 0;
 
@@ -184,3 +195,36 @@ void print_ZOV (FILE* f_ptr,int times)
 }
 
 
+void calculate_all_hash (Stack_t* stk)
+{
+    MYASSERT (stk, stk);
+    MYASSERT (stk->data, stk);
+
+    stk->stk_hash = calculate_hash (stk, sizeof(Stack_t)-sizeof(hash_t)-sizeof(stack_elem_t));
+    *((unsigned long long*)(stk->data)-2) = calculate_hash (stk->data, sizeof(stack_elem_t)*stk->capacity);
+}
+
+
+void check_hash (Stack_t* stk)
+{
+    MYASSERT (stk,stk);
+    MYASSERT (stk->data, stk);
+
+    hash_t control_hash_stk = 0;
+    control_hash_stk = calculate_hash (stk, sizeof(Stack_t)-sizeof(hash_t)-sizeof(stack_elem_t));
+
+    printf ("control_hash_stk ==:%llu\n", control_hash_stk);
+    printf ("real hash value: %llu\n", stk->stk_hash);
+
+    hash_t control_hash_data = 0;
+    control_hash_data = calculate_hash (stk->data, sizeof(stack_elem_t)*stk->capacity);
+
+    printf ("control_hash_data ==:%llu\n", control_hash_data);
+    printf ("real  hash value: %llu\n", *((unsigned long long*)(stk->data - 2)));
+
+    SUM_ERRORS (stk->stk_hash != control_hash_stk, WRONG_STACK_HASH);
+
+    SUM_ERRORS (fabs(*((unsigned long long*)((stk->data)-2)) - control_hash_data) > DEVIATION, WRONG_DATA_HASH);
+
+
+}

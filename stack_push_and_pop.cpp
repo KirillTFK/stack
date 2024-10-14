@@ -73,9 +73,6 @@ void increase_capacity (struct Stack_t* const stk)
         else
             SUM_ERRORS (stk->capacity == MAX_DATA_SIZE, MORE_THAN_MAX_DATA_SIZE);
 
-        stack_dump (stk);
-        printf ("Я в increase stack\n");
-        calculate_all_hash (stk);
     }
 }
 
@@ -128,8 +125,6 @@ void realloc_data (struct Stack_t* const stk)
 {
     MYASSERT (stk, stk);
 
-    stack_dump(stk);
-    check_hash (stk);
     stk->data = (stack_elem_t*) realloc (stk->data-2, (stk->capacity + 3)*sizeof(stack_elem_t)) + 2;
     SUM_ERRORS (stk->data == 0, FAILED_TO_ALLOCATE_DYNAM_MEMORY);
 

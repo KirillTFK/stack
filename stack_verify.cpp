@@ -213,18 +213,12 @@ void check_hash (Stack_t* stk)
     hash_t control_hash_stk = 0;
     control_hash_stk = calculate_hash (stk, sizeof(Stack_t)-sizeof(hash_t)-sizeof(stack_elem_t));
 
-    printf ("control_hash_stk ==:%llu\n", control_hash_stk);
-    printf ("real hash value: %llu\n", stk->stk_hash);
-
     hash_t control_hash_data = 0;
-    control_hash_data = calculate_hash (stk->data, sizeof(stack_elem_t)*stk->capacity);
-
-    printf ("control_hash_data ==:%llu\n", control_hash_data);
-    printf ("real  hash value: %llu\n", *((unsigned long long*)(stk->data - 2)));
+    control_hash_data = calculate_hash (stk->data, sizeof(stack_elem_t)*(stk->capacity));
 
     SUM_ERRORS (stk->stk_hash != control_hash_stk, WRONG_STACK_HASH);
 
-    SUM_ERRORS (fabs(*((unsigned long long*)((stk->data)-2)) - control_hash_data) > DEVIATION, WRONG_DATA_HASH);
+    SUM_ERRORS (*((unsigned long long*)((stk->data)-2)) != control_hash_data, WRONG_DATA_HASH);
 
 
 }

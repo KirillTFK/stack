@@ -18,7 +18,7 @@ OBLIGATORE= -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ \
 		-Wlarger-than=8192 -Wstack-usage=8192 -pie -fPIE -Werror=vla
 target = stack
 override CFLAGS += $(OBLIGATORE)
-CSRC = constructor.cpp destructor.cpp stack_push_and_pop.cpp stack_verify.cpp main.cpp
+CSRC = constructor.cpp destructor.cpp stack_push_and_pop.cpp stack_verify.cpp main.cpp hash.cpp
 COBJ = $(CSRC:%.cpp=%.o)
 
 .PHONY: all clean

@@ -16,3 +16,4 @@ void stack_ctor (struct Stack_t* stk, unsigned long long capacity, FILE* f_ptr, 
 struct Stack_t* get_stack_pointer (void);
 void poison (Stack_t *stk);
 void check_open (FILE** f_ptr, const char *name, const char *mode);
+void do_poison (struct Stack_t *stk);

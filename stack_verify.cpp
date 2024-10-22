@@ -101,7 +101,9 @@ bool verify_stack (struct Stack_t * const stk,const char* const file,const char*
     check_hash (stk);
 
     if ((error_flag = STACK_ERROR (stk->stack_error, stk->f_ptr)) == WITH_ERROR)
+    {
         stack_dump(stk);
+    }
 
     return error_flag;
 }

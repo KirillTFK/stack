@@ -26,10 +26,10 @@ COBJ = $(CSRC:%.cpp=%.o)
 all: $(target)
 
 $(target) : $(COBJ)
-	@($(СС) $(CFLAGS) $^ -o $(target))
+	@($(СС) $(CFLAGS) -D NDEBUG $^ -o $(target))
 
 %.o : %.cpp
-	@($(CC) $(CFLAGS) -c -o $@ $^)
+	@($(CC) $(CFLAGS) -D NDEBUG -c -o $@ $^)
 
 
 clean:
